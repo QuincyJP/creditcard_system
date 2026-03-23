@@ -1,5 +1,6 @@
 package com.credit.creditcard.controller;
 
+import com.credit.creditcard.dto.BillResponse;
 import com.credit.creditcard.model.Transaction;
 import com.credit.creditcard.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,19 +19,20 @@ public class TransactionController {
     @PostMapping("/pay")
     public Transaction pay(@RequestParam String cardNumber,
                            @RequestParam String pin,
-                           @RequestParam double amount) {
-        return service.makeTransaction(cardNumber, pin, amount);
+                           @RequestParam double amount,
+                           @RequestParam String productName) {
+        return service.makeTransaction(cardNumber, pin, amount, productName);
     }
 
     // 📄 GET TRANSACTIONS
-    @GetMapping("/{cardNumber}")
-    public List<Transaction> getTransactions(@PathVariable String cardNumber) {
-        return service.getTransactions(cardNumber);
+    @GetMapping("/user/{userId}")
+    public List<Transaction> getByUser(@PathVariable Long userId) {
+        return service.getTransactionsByUser(userId);
     }
 
     // 🧾 BILL
     @GetMapping("/bill/{cardNumber}")
-    public double getBill(@PathVariable String cardNumber) {
-        return service.calculateBillWithInterest(cardNumber);
+    public BillResponse getBill(@PathVariable String cardNumber) {
+        return service.calculateBillDetails(cardNumber);
     }
 }

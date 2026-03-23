@@ -1,5 +1,6 @@
 package com.credit.creditcard.service;
 
+import com.credit.creditcard.dto.BillResponse;
 import com.credit.creditcard.model.CreditCard;
 import com.credit.creditcard.model.Transaction;
 import com.credit.creditcard.repository.CreditCardRepository;
@@ -20,7 +21,7 @@ public class TransactionService {
     private CreditCardRepository cardRepo;
 
     // 🔥 MAIN TRANSACTION METHOD
-    public Transaction makeTransaction(String cardNumber, String pin, double amount) {
+    public Transaction makeTransaction(String cardNumber, String pin, double amount, String productName) {
 
         CreditCard card = cardRepo.findByCardNumber(cardNumber)
                 .orElseThrow(() -> new RuntimeException("Card not found"));
@@ -40,17 +41,20 @@ public class TransactionService {
         cardRepo.save(card);
 
         // 🧾 SAVE TRANSACTION
-        Transaction tx = new Transaction();
-        tx.setCardNumber(cardNumber);
-        tx.setAmount(amount);
-        tx.setDate(LocalDateTime.now());
+        Transaction t = new Transaction();
 
-        return transactionRepo.save(tx);
+        t.setUserId(card.getUserId()); // 🔥 link to user
+        t.setCardNumber(cardNumber);
+        t.setAmount(amount);
+        t.setDescription("Purchase - " + productName); // or just "Purchase"
+        t.setStatus("SUCCESS");
+
+        return transactionRepo.save(t);
     }
 
     // 📄 GET ALL TRANSACTIONS
-    public List<Transaction> getTransactions(String cardNumber) {
-        return transactionRepo.findByCardNumber(cardNumber);
+    public List<Transaction> getTransactionsByUser(Long userId) {
+        return transactionRepo.findByUserId(userId);
     }
 
     // 🧾 BILL CALCULATION
@@ -62,8 +66,16 @@ public class TransactionService {
     }
 
     // 💰 BILL + INTEREST
-    public double calculateBillWithInterest(String cardNumber) {
-        double total = calculateBill(cardNumber);
-        return total + (total * 0.02); // 2% interest
-    }
+    public BillResponse calculateBillDetails(String cardNumber) {
+
+    double total = transactionRepo.findByCardNumber(cardNumber)
+            .stream()
+            .filter(t -> "SUCCESS".equals(t.getStatus()))
+            .mapToDouble(Transaction::getAmount)
+            .sum();
+
+    double interest = total * 0.02;
+
+    return new BillResponse(cardNumber, total, interest);
+}
 }

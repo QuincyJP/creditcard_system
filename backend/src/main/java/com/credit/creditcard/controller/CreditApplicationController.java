@@ -9,6 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/applications")
+@CrossOrigin(origins = "*")
 public class CreditApplicationController {
 
     @Autowired
@@ -16,18 +17,27 @@ public class CreditApplicationController {
 
     @PostMapping("/apply")
     public CreditApplication apply(@RequestBody CreditApplication app) {
+
+        System.out.println("🔥 APPLY API HIT - CONTROLLER");
+
         return service.apply(app);
     }
 
     // 🔥 Get all applications (Admin)
     @GetMapping("/all")
     public List<CreditApplication> getAll() {
+
+        System.out.println("📋 FETCH ALL APPLICATIONS");
+
         return service.getAllApplications();
     }
 
     // 🔥 Approve / Reject API
     @PostMapping("/process/{id}")
     public CreditApplication process(@PathVariable Long id) {
+
+        System.out.println("⚙️ PROCESS APPLICATION ID: " + id);
+
         return service.processApplication(id);
     }
 }

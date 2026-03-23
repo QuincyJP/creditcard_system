@@ -38,6 +38,8 @@ public class CreditApplicationService {
     // 🔥 Apply for credit card
     public CreditApplication apply(CreditApplication app) {
 
+         System.out.println("🔥 APPLY API HIT - SERVICE");
+
         int score = calculateScore(
                 app.getIncome(),
                 app.getExistingLoans(),
