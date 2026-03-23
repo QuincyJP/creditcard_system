@@ -8,7 +8,7 @@ function Payment({ product, onRefresh }) {
 
   const handlePay = () => {
     fetch(
-      `http://localhost:8080/api/transactions/pay?cardNumber=${cardNumber}&pin=${pin}&amount=${product.price}&productName=${product.name}`,
+      `https://credit-backend-rrsg.onrender.com/api/transactions/pay?cardNumber=${cardNumber}&pin=${pin}&amount=${product.price}&productName=${product.name}`,
       {
         method: "POST"
       }

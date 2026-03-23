@@ -22,7 +22,7 @@ function ApplyCard({ user }) {
     }
 
     try {
-      const res = await fetch("http://localhost:8080/api/applications/apply", {
+      const res = await fetch("https://credit-backend-rrsg.onrender.com/api/applications/apply", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

@@ -38,7 +38,7 @@ function AdminDashboard() {
   const handleProcess = async (id) => {
     setProcessingId(id);
 
-    await fetch(`http://localhost:8080/api/applications/process/${id}`, {
+    await fetch(`https://credit-backend-rrsg.onrender.com/api/applications/process/${id}`, {
       method: "POST",
     });
 

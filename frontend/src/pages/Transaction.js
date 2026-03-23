@@ -7,7 +7,7 @@ function Transaction({ user, refreshKey }) {
   useEffect(() => {
     if (!user) return;
 
-    fetch(`http://localhost:8080/api/transactions/user/${user.id}`)
+    fetch(`https://credit-backend-rrsg.onrender.com/api/transactions/user/${user.id}`)
       .then(res => res.json())
       .then(data => {
         let formattedData = [];

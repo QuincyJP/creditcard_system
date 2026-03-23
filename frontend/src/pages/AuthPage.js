@@ -16,7 +16,7 @@ function AuthPage({ setUser }) {
   };
 
   const handleLogin = () => {
-    fetch("http://localhost:8080/api/users/login", {
+    fetch("https://credit-backend-rrsg.onrender.com/api/users/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password })
@@ -34,7 +34,7 @@ function AuthPage({ setUser }) {
       setMessage({ text: "Passwords do not match", type: "error" });
       return;
     }
-    fetch("http://localhost:8080/api/users/register", {
+    fetch("https://credit-backend-rrsg.onrender.com/api/users/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email, password })

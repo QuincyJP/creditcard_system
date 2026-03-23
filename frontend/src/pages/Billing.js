@@ -8,13 +8,13 @@ function Billing({ user, refreshKey }) {
   useEffect(() => {
     if (!user) return;
 
-    fetch(`http://localhost:8080/api/cards/user/${user.id}`)
+    fetch(`https://credit-backend-rrsg.onrender.com/api/cards/user/${user.id}`)
       .then(res => res.json())
       .then(data => {
         setCards(data);
 
         data.forEach(card => {
-          fetch(`http://localhost:8080/api/transactions/bill/${card.cardNumber}`)
+          fetch(`https://credit-backend-rrsg.onrender.com/api/transactions/bill/${card.cardNumber}`)
             .then(res => res.json())
             .then(bill => {
               setBills(prev => ({

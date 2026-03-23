@@ -24,7 +24,7 @@ function MyCard({ user, refreshKey }) {
   const fetchCards = useCallback(() => {
     if (!user) return;
 
-    fetch(`http://localhost:8080/api/cards/user/${user.id}`)
+    fetch(`https://credit-backend-rrsg.onrender.com/api/cards/user/${user.id}`)
       .then(res => res.json())
       .then(data => {
       console.log("Fetched cards:", data); // 🔥 DEBUG
@@ -54,7 +54,7 @@ function MyCard({ user, refreshKey }) {
 
   const handleSetPin = () => {
     fetch(
-      `http://localhost:8080/api/cards/set-pin?cardNumber=${selectedCard.cardNumber}&pin=${pin}`,
+      `https://credit-backend-rrsg.onrender.com/api/cards/set-pin?cardNumber=${selectedCard.cardNumber}&pin=${pin}`,
       { method: "POST" }
     )
       .then(res => {
