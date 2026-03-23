@@ -3,12 +3,32 @@ import { useEffect, useState } from "react";
 
 function AdminDashboard() {
   const [applications, setApplications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [processingId, setProcessingId] = useState(null);
 
   const fetchApplications = () => {
+    setLoading(true);
+
     fetch("http://localhost:8080/api/applications/all")
       .then(res => res.json())
-      .then(data => setApplications(data))
-      .catch(err => console.error(err));
+      .then(data => {
+        console.log("APPLICATIONS:", data);
+
+        let formattedData = [];
+
+        if (Array.isArray(data)) {
+          formattedData = data;
+        } else if (data) {
+          formattedData = [data];
+        }
+
+        setApplications(formattedData);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
   };
 
   useEffect(() => {
@@ -16,12 +36,13 @@ function AdminDashboard() {
   }, []);
 
   const handleProcess = async (id) => {
-    // Call backend to process the application based on your calculation logic
+    setProcessingId(id);
+
     await fetch(`http://localhost:8080/api/applications/process/${id}`, {
       method: "POST",
     });
 
-    // Refresh list after processing
+    setProcessingId(null);
     fetchApplications();
   };
 
@@ -33,14 +54,25 @@ function AdminDashboard() {
     }
   };
 
+  // 🔥 Loading UI
+  if (loading) {
+    return (
+      <Typography sx={{ padding: 3 }}>
+        Loading applications...
+      </Typography>
+    );
+  }
+
   return (
     <Box sx={{ padding: 3, minHeight: "100vh", background: "#f5f7fa" }}>
       <Typography variant="h4" sx={{ mb: 3 }}>
         Admin Dashboard
       </Typography>
 
-      <Typography variant="subtitle1" sx={{ mb: 2 }}>
-        Pending Applications: {applications.filter(a => a.status === "PENDING").length}
+      {/* Pending Count */}
+      <Typography variant="subtitle1" sx={{ mb: 3 }}>
+        Pending Applications:{" "}
+        {applications.filter(a => a && a.status === "PENDING").length}
       </Typography>
 
       <Grid container spacing={3}>
@@ -59,23 +91,42 @@ function AdminDashboard() {
               <Typography><b>Income:</b> ₹{app.income}</Typography>
               <Typography><b>EMI:</b> ₹{app.monthlyEMI}</Typography>
               <Typography><b>Score:</b> {app.calculatedScore}</Typography>
-              <Typography sx={{ mb: 2 }}><b>Status:</b> {app.status}</Typography>
 
+              {/* Status with color */}
+              <Typography
+                sx={{
+                  mb: 2,
+                  fontWeight: "bold",
+                  color:
+                    app.status === "APPROVED"
+                      ? "green"
+                      : app.status === "REJECTED"
+                      ? "red"
+                      : "orange"
+                }}
+              >
+                Status: {app.status}
+              </Typography>
+
+              {/* Process Button */}
               {app.status === "PENDING" && (
                 <Button
                   variant="contained"
-                  color="primary"
                   onClick={() => handleProcess(app.id)}
+                  disabled={processingId === app.id}
                 >
-                  Process
+                  {processingId === app.id ? "Processing..." : "Process"}
                 </Button>
               )}
             </Card>
           </Grid>
         ))}
 
+        {/* Empty State */}
         {applications.length === 0 && (
-          <Typography>No applications found.</Typography>
+          <Typography sx={{ padding: 2 }}>
+            No applications found.
+          </Typography>
         )}
       </Grid>
     </Box>
