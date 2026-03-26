@@ -9,7 +9,7 @@ function AdminDashboard() {
   const fetchApplications = () => {
     setLoading(true);
 
-    fetch("http://localhost:8080/api/applications/all")
+    fetch("https://credit-backend-rrsg.onrender.com/api/applications/all")
       .then(res => res.json())
       .then(data => {
         console.log("APPLICATIONS:", data);
