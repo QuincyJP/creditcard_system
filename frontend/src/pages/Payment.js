@@ -13,12 +13,32 @@ function Payment({ product, onRefresh }) {
         method: "POST"
       }
     )
-      .then(res => res.json())
-      .then(data => {
+      .then(async (res) => {
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(errorText || "Payment failed");
+        }
+
+        const contentType = res.headers.get("content-type");
+
+        if (contentType && contentType.includes("application/json")) {
+          return res.json();
+        }
+
+        throw new Error("Invalid card details");
+      })
+      .then((data) => {
         setResult(data);
         if (onRefresh) onRefresh();
       })
-      .catch(() => setResult({ status: "FAILED", amount: product.price, description: product.name, date: new Date() }));
+      .catch((err) =>
+        setResult({
+          status: "FAILED",
+          amount: product.price,
+          description: err.message || product.name,
+          date: new Date()
+        })
+      );
   };
 
   return (
