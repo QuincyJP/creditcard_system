@@ -22,26 +22,35 @@ function UserDashboard({ user, setUser }) {
 
   // Fetch user's cards
   useEffect(() => {
+    console.log("Fetching cards for user:", user.id);
+
     fetch(`https://credit-backend-rrsg.onrender.com/api/cards/user/${user.id}`)
       .then(res => res.json())
-      .then(data => setCards(data))
+      .then(data => {
+        console.log("CARDS DATA:", data);
+        setCards(data);
+      })
       .catch(err => console.error("Error fetching cards:", err));
-  }, [user]);
+  }, [user, refreshKey]);
 
-  // Fetch user's transactions
   useEffect(() => {
+    console.log("Fetching transactions for user:", user.id);
+
     fetch(`https://credit-backend-rrsg.onrender.com/api/transactions/user/${user.id}`)
       .then(res => res.json())
       .then(data => {
+        console.log("TRANSACTION DATA:", data);
+
         let formattedData = [];
         if (Array.isArray(data)) formattedData = data;
         else if (data) formattedData = [data];
+
         formattedData = formattedData.filter(t => t && t.amount && t.date);
-        formattedData.sort((a, b) => new Date(b.date) - new Date(a.date));
+
         setTransactions(formattedData);
       })
       .catch(err => console.error("Error fetching transactions:", err));
-  }, [user]);
+  }, [user, refreshKey]);
 
   const totalSpent = cards.reduce((acc, c) => acc + (c.creditLimit - c.availableLimit), 0);
   const totalLimit = cards.reduce((acc, c) => acc + c.creditLimit, 1);
