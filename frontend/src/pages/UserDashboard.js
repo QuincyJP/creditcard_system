@@ -22,7 +22,7 @@ function UserDashboard({ user, setUser }) {
 
   // Fetch user's cards
   useEffect(() => {
-    fetch(`/api/cards/user/${user.id}`)
+    fetch(`https://credit-backend-rrsg.onrender.com/api/cards/user/${user.id}`)
       .then(res => res.json())
       .then(data => setCards(data))
       .catch(err => console.error("Error fetching cards:", err));
@@ -30,7 +30,7 @@ function UserDashboard({ user, setUser }) {
 
   // Fetch user's transactions
   useEffect(() => {
-    fetch(`/api/transactions/user/${user.id}`)
+    fetch(`https://credit-backend-rrsg.onrender.com/api/transactions/user/${user.id}`)
       .then(res => res.json())
       .then(data => {
         let formattedData = [];

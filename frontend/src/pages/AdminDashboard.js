@@ -69,59 +69,12 @@ function AdminDashboard() {
         Admin Dashboard
       </Typography>
 
-      {/* Analytics Summary */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} md={3}>
-          <Card sx={{ p: 3, textAlign: "center" }}>
-            <Typography variant="h6">Total</Typography>
-            <Typography variant="h4">
-              {applications.length}
-            </Typography>
-          </Card>
-        </Grid>
-
-        <Grid item xs={12} md={3}>
-          <Card sx={{ p: 3, textAlign: "center" }}>
-            <Typography variant="h6">Pending</Typography>
-            <Typography variant="h4" color="orange">
-              {applications.filter(a => a?.status === "PENDING").length}
-            </Typography>
-          </Card>
-        </Grid>
-
-        <Grid item xs={12} md={3}>
-          <Card sx={{ p: 3, textAlign: "center" }}>
-            <Typography variant="h6">Approved</Typography>
-            <Typography variant="h4" color="green">
-              {applications.filter(a => a?.status === "APPROVED").length}
-            </Typography>
-          </Card>
-        </Grid>
-
-        <Grid item xs={12} md={3}>
-          <Card sx={{ p: 3, textAlign: "center" }}>
-            <Typography variant="h6">Rejected</Typography>
-            <Typography variant="h4" color="red">
-              {applications.filter(a => a?.status === "REJECTED").length}
-            </Typography>
-          </Card>
-        </Grid>
-      </Grid>
-
-      {/* Approval Rate */}
+      {/* Pending Count */}
       <Typography variant="subtitle1" sx={{ mb: 3 }}>
-        Approval Rate:{" "}
-        {applications.length > 0
-          ? (
-              (applications.filter(a => a?.status === "APPROVED").length /
-                applications.length) *
-              100
-            ).toFixed(1)
-          : 0}
-        %
+        Pending Applications:{" "}
+        {applications.filter(a => a && a.status === "PENDING").length}
       </Typography>
 
-      {/* Existing Applications List */}
       <Grid container spacing={3}>
         {applications.map(app => (
           <Grid item xs={12} md={6} key={app.id}>
@@ -139,6 +92,7 @@ function AdminDashboard() {
               <Typography><b>EMI:</b> ₹{app.monthlyEMI}</Typography>
               <Typography><b>Score:</b> {app.calculatedScore}</Typography>
 
+              {/* Status with color */}
               <Typography
                 sx={{
                   mb: 2,
@@ -154,6 +108,7 @@ function AdminDashboard() {
                 Status: {app.status}
               </Typography>
 
+              {/* Process Button */}
               {app.status === "PENDING" && (
                 <Button
                   variant="contained"
@@ -166,6 +121,13 @@ function AdminDashboard() {
             </Card>
           </Grid>
         ))}
+
+        {/* Empty State */}
+        {applications.length === 0 && (
+          <Typography sx={{ padding: 2 }}>
+            No applications found.
+          </Typography>
+        )}
       </Grid>
     </Box>
   );
