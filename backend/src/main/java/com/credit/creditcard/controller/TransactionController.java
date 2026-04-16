@@ -35,4 +35,21 @@ public class TransactionController {
     public BillResponse getBill(@PathVariable String cardNumber) {
         return service.calculateBillDetails(cardNumber);
     }
+
+    // ✅ APPROVE
+    @PostMapping("/approve/{id}")
+    public Transaction approve(@PathVariable Long id) {
+        return service.approveTransaction(id);
+    }
+
+    // ❌ REJECT
+    @PostMapping("/reject/{id}")
+    public Transaction reject(@PathVariable Long id) {
+        return service.rejectTransaction(id);
+    }
+
+    @GetMapping("/all")
+    public List<Transaction> getAllTransactions() {
+        return service.getAllTransactions();
+    }
 }

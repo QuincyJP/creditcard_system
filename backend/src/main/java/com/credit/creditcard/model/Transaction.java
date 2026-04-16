@@ -11,19 +11,23 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId; // 🔥 IMPORTANT (for history per user)
+    private Long userId;
 
     private String cardNumber;
 
     private double amount;
 
-    private String description; // 🔥 "Laptop", "Shoes", etc.
+    private String description;
 
-    private String status; // 🔥 SUCCESS / FAILED
+    // 🔥 UPDATED STATUS: PENDING / SUCCESS / FAILED
+    private String status;
 
     private LocalDateTime date;
 
-    // 🔥 Automatically set date before saving
+    // 🔥 NEW (for admin approval)
+    private LocalDateTime approvedAt;
+
+    // 🔥 Auto timestamp
     @PrePersist
     protected void onCreate() {
         this.date = LocalDateTime.now();
@@ -49,4 +53,7 @@ public class Transaction {
     public void setStatus(String status) { this.status = status; }
 
     public LocalDateTime getDate() { return date; }
+
+    public LocalDateTime getApprovedAt() { return approvedAt; }
+    public void setApprovedAt(LocalDateTime approvedAt) { this.approvedAt = approvedAt; }
 }
