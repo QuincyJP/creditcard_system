@@ -1,10 +1,11 @@
-import { useState } from "react";
-import { Typography, Card, Button } from "@mui/material";
+import { useState, useEffect } from "react";
+import { Typography, Card, Button, TextField, Box } from "@mui/material";
 
 function Payment({ product, onRefresh }) {
   const [cardNumber, setCardNumber] = useState("");
   const [pin, setPin] = useState("");
   const [result, setResult] = useState(null);
+  const [transactionId, setTransactionId] = useState(null);
 
   const handlePay = () => {
     fetch(
@@ -20,6 +21,8 @@ function Payment({ product, onRefresh }) {
       })
       .then((data) => {
         setResult(data);
+        setTransactionId(data.transactionId || data.id);
+
         if (onRefresh) onRefresh();
       })
       .catch((err) =>
@@ -32,58 +35,116 @@ function Payment({ product, onRefresh }) {
       );
   };
 
+  // 🔥 Auto status polling
+  useEffect(() => {
+    if (!transactionId) return;
+
+    const interval = setInterval(() => {
+      fetch(
+        `https://credit-backend-rrsg.onrender.com/api/transactions/${transactionId}`
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          setResult(data);
+
+          if (data.status === "SUCCESS" || data.status === "FAILED") {
+            clearInterval(interval);
+          }
+        })
+        .catch(() => {});
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [transactionId]);
+
   return (
-    <div>
-      <Typography variant="h6">Payment Page</Typography>
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        mt: 4
+      }}
+    >
+      <Card
+        sx={{
+          width: 420,
+          p: 4,
+          borderRadius: 4,
+          boxShadow: 5
+        }}
+      >
+        <Typography variant="h5" sx={{ mb: 1, fontWeight: "bold" }}>
+          Payment Checkout
+        </Typography>
 
-      {/* INPUTS (IMPORTANT: now state is actually used → fixes ESLint) */}
-      <input
-        placeholder="Card Number"
-        value={cardNumber}
-        onChange={(e) => setCardNumber(e.target.value)}
-      />
+        <Typography variant="body2" sx={{ mb: 3, color: "gray" }}>
+          Pay for: <b>{product.name}</b> — ₹{product.price}
+        </Typography>
 
-      <input
-        placeholder="PIN"
-        type="password"
-        value={pin}
-        onChange={(e) => setPin(e.target.value)}
-      />
+        {/* INPUT STACK */}
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <TextField
+            label="Card Number"
+            variant="outlined"
+            value={cardNumber}
+            onChange={(e) => setCardNumber(e.target.value)}
+            fullWidth
+          />
 
-      <Button variant="contained" onClick={handlePay}>
-        Pay ₹{product.price}
-      </Button>
+          <TextField
+            label="PIN"
+            type="password"
+            variant="outlined"
+            value={pin}
+            onChange={(e) => setPin(e.target.value)}
+            fullWidth
+          />
 
-      {/* RESULT CARD */}
-      {result && (
-        <Card
-          sx={{
-            p: 3,
-            mt: 2,
-            borderRadius: 3,
-            boxShadow: 6,
-            background:
-              result.status === "SUCCESS"
-                ? "#e8f5e9"
-                : result.status === "FAILED"
-                ? "#ffebee"
-                : "#fff3e0"
-          }}
-        >
-          <Typography variant="h6">
-            {result.status === "SUCCESS" && "✅ Payment Successful"}
-            {result.status === "FAILED" && "❌ Payment Failed"}
-            {result.status === "PENDING" && "⏳ Payment Pending"}
-          </Typography>
+          <Button
+            variant="contained"
+            size="large"
+            onClick={handlePay}
+            sx={{
+              mt: 1,
+              py: 1.2,
+              fontWeight: "bold",
+              borderRadius: 2
+            }}
+          >
+            Pay ₹{product.price}
+          </Button>
+        </Box>
 
-          <Typography>Amount: ₹{result.amount}</Typography>
-          <Typography>Product: {result.description}</Typography>
-          <Typography>
-            Date: {new Date(result.date).toLocaleString()}
-          </Typography>
-        </Card>
-      )}
-    </div>
+        {/* RESULT */}
+        {result && (
+          <Card
+            sx={{
+              mt: 3,
+              p: 2,
+              borderRadius: 3,
+              background:
+                result.status === "SUCCESS"
+                  ? "#e8f5e9"
+                  : result.status === "FAILED"
+                  ? "#ffebee"
+                  : "#fff3e0"
+            }}
+          >
+            <Typography variant="h6">
+              {result.status === "SUCCESS" && "✅ Payment Successful"}
+              {result.status === "FAILED" && "❌ Payment Failed"}
+              {result.status === "PENDING" && "⏳ Payment Pending"}
+            </Typography>
+
+            <Typography>Amount: ₹{result.amount}</Typography>
+            <Typography>Product: {result.description}</Typography>
+            <Typography>
+              Date: {new Date(result.date).toLocaleString()}
+            </Typography>
+          </Card>
+        )}
+      </Card>
+    </Box>
   );
 }
 
