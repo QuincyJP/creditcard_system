@@ -35,24 +35,45 @@ function Payment({ product, onRefresh }) {
       );
   };
 
-  // 🔥 Auto status polling
   useEffect(() => {
     if (!transactionId) return;
 
-    const interval = setInterval(() => {
-      fetch(
-        `https://credit-backend-rrsg.onrender.com/api/transactions/${transactionId}`
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          setResult(data);
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(
+          `https://credit-backend-rrsg.onrender.com/api/transactions/${transactionId}`
+        );
 
-          if (data.status === "SUCCESS" || data.status === "FAILED") {
-            clearInterval(interval);
-          }
-        })
-        .catch(() => {});
-    }, 3000);
+        if (!res.ok) return;
+
+        const data = await res.json();
+
+        // 🔥 Normalize backend status (VERY IMPORTANT)
+        const status = (data.status || "").toUpperCase();
+
+        setResult({
+          ...data,
+          status:
+            status === "APPROVED"
+              ? "SUCCESS"
+              : status === "REJECTED"
+              ? "FAILED"
+              : status
+        });
+
+        // stop polling only when final state is confirmed
+        if (
+          status === "APPROVED" ||
+          status === "REJECTED" ||
+          status === "SUCCESS" ||
+          status === "FAILED"
+        ) {
+          clearInterval(interval);
+        }
+      } catch (err) {
+        console.log("Polling error:", err);
+      }
+    }, 4000); // slightly slower = more stable
 
     return () => clearInterval(interval);
   }, [transactionId]);
