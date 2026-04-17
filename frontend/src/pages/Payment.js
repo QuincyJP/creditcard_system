@@ -21,7 +21,9 @@ function Payment({ product, onRefresh }) {
       })
       .then((data) => {
         setResult(data);
-        setTransactionId(data.transactionId || data.id);
+
+        // IMPORTANT: ensure correct ID
+        setTransactionId(data.id);
 
         if (onRefresh) onRefresh();
       })
@@ -35,6 +37,7 @@ function Payment({ product, onRefresh }) {
       );
   };
 
+  // 🔥 POLLING (FIXED + RELIABLE)
   useEffect(() => {
     if (!transactionId) return;
 
@@ -48,52 +51,40 @@ function Payment({ product, onRefresh }) {
 
         const data = await res.json();
 
-        // 🔥 Normalize backend status (VERY IMPORTANT)
+        console.log("TXN UPDATE:", data);
+
         const status = (data.status || "").toUpperCase();
+
+        let mappedStatus = "PENDING";
+
+        if (status === "APPROVED" || status === "SUCCESS") {
+          mappedStatus = "SUCCESS";
+        } else if (status === "REJECTED" || status === "FAILED") {
+          mappedStatus = "FAILED";
+        } else {
+          mappedStatus = "PENDING";
+        }
 
         setResult({
           ...data,
-          status:
-            status === "APPROVED"
-              ? "SUCCESS"
-              : status === "REJECTED"
-              ? "FAILED"
-              : status
+          status: mappedStatus
         });
 
-        // stop polling only when final state is confirmed
-        if (
-          status === "APPROVED" ||
-          status === "REJECTED" ||
-          status === "SUCCESS" ||
-          status === "FAILED"
-        ) {
+        // stop polling when final state reached
+        if (mappedStatus === "SUCCESS" || mappedStatus === "FAILED") {
           clearInterval(interval);
         }
       } catch (err) {
         console.log("Polling error:", err);
       }
-    }, 4000); // slightly slower = more stable
+    }, 4000);
 
     return () => clearInterval(interval);
   }, [transactionId]);
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        mt: 4
-      }}
-    >
-      <Card
-        sx={{
-          width: 420,
-          p: 4,
-          borderRadius: 4,
-          boxShadow: 5
-        }}
-      >
+    <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+      <Card sx={{ width: 420, p: 4, borderRadius: 4, boxShadow: 5 }}>
         <Typography variant="h5" sx={{ mb: 1, fontWeight: "bold" }}>
           Payment Checkout
         </Typography>
@@ -102,11 +93,9 @@ function Payment({ product, onRefresh }) {
           Pay for: <b>{product.name}</b> — ₹{product.price}
         </Typography>
 
-        {/* INPUT STACK */}
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <TextField
             label="Card Number"
-            variant="outlined"
             value={cardNumber}
             onChange={(e) => setCardNumber(e.target.value)}
             fullWidth
@@ -115,28 +104,16 @@ function Payment({ product, onRefresh }) {
           <TextField
             label="PIN"
             type="password"
-            variant="outlined"
             value={pin}
             onChange={(e) => setPin(e.target.value)}
             fullWidth
           />
 
-          <Button
-            variant="contained"
-            size="large"
-            onClick={handlePay}
-            sx={{
-              mt: 1,
-              py: 1.2,
-              fontWeight: "bold",
-              borderRadius: 2
-            }}
-          >
+          <Button variant="contained" size="large" onClick={handlePay}>
             Pay ₹{product.price}
           </Button>
         </Box>
 
-        {/* RESULT */}
         {result && (
           <Card
             sx={{

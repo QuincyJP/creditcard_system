@@ -36,6 +36,13 @@ function AdminDashboard() {
   useEffect(() => {
     fetchApplications();
     fetchTransactions();
+
+    const interval = setInterval(() => {
+      fetchApplications();
+      fetchTransactions();
+    }, 4000);
+
+    return () => clearInterval(interval);
   }, []);
 
   // 🔹 PROCESS APPLICATION
