@@ -18,6 +18,13 @@ function AdminDashboard() {
       .catch(err => console.error(err));
   };
 
+  const handleDelete = async (id) => {
+    await fetch(`https://credit-backend-rrsg.onrender.com/api/applications/${id}`, {
+      method: "DELETE"
+    });
+    fetchApplications();
+  };
+
   // 🔹 FETCH TRANSACTIONS (PENDING ONLY)
   const fetchTransactions = () => {
     fetch("https://credit-backend-rrsg.onrender.com/api/transactions/all") // TEMP USER
@@ -108,11 +115,13 @@ function AdminDashboard() {
       </Typography>
 
       <Typography sx={{ mb: 2 }}>
-        Pending Applications: {applications.filter(a => a.status === "PENDING").length}
+        Pending Applications: {applications.filter(a => a && a.status === "PENDING").length}
       </Typography>
 
       <Grid container spacing={3}>
-        {applications.map(app => (
+        {applications
+          .filter(app => app && app.status === "PENDING")
+          .map(app => (
           <Grid item xs={12} md={6} key={app.id}>
             <Card sx={{ p: 3, borderRadius: 3, ...hoverCardStyle }}>
               <Typography><b>User ID:</b> {app.userId}</Typography>
@@ -139,6 +148,24 @@ function AdminDashboard() {
                   {processingId === app.id ? "Processing..." : "Process"}
                 </Button>
               )}
+              <Box sx={{ mt: 2 }}>
+                  <Button
+                    variant="contained"
+                    sx={{ mr: 2 }}
+                    onClick={() => handleProcess(app.id)}
+                    disabled={processingId === app.id}
+                  >
+                    {processingId === app.id ? "Processing..." : "Process"}
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    color="error"
+                    onClick={() => handleDelete(app.id)}
+                  >
+                    Delete
+                  </Button>
+                </Box>
             </Card>
           </Grid>
         ))}

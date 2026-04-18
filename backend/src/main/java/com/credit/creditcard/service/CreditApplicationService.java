@@ -99,4 +99,8 @@ public class CreditApplicationService {
         else if (score >= 750) return 100000;
         else return 50000;
     }
+
+    public void deleteApplication(Long id) {
+        applicationRepo.deleteById(id);
+    }
 }

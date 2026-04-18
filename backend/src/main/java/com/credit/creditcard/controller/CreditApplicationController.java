@@ -40,4 +40,9 @@ public class CreditApplicationController {
 
         return service.processApplication(id);
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteApplication(@PathVariable Long id) {
+        service.deleteApplication(id);
+    }
 }
