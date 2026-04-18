@@ -101,6 +101,6 @@ public class CreditApplicationService {
     }
 
     public void deleteApplication(Long id) {
-        applicationRepo.deleteById(id);
+        repository.deleteById(id);
     }
 }
