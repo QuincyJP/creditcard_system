@@ -139,16 +139,7 @@ function AdminDashboard() {
               </Typography>
 
               {app.status === "PENDING" && (
-                <Button
-                  variant="contained"
-                  sx={{ mt: 2 }}
-                  onClick={() => handleProcess(app.id)}
-                  disabled={processingId === app.id}
-                >
-                  {processingId === app.id ? "Processing..." : "Process"}
-                </Button>
-              )}
-              <Box sx={{ mt: 2 }}>
+                <Box sx={{ mt: 2 }}>
                   <Button
                     variant="contained"
                     sx={{ mr: 2 }}
@@ -166,6 +157,8 @@ function AdminDashboard() {
                     Delete
                   </Button>
                 </Box>
+              )}
+              
             </Card>
           </Grid>
         ))}
